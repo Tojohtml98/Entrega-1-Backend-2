@@ -10,15 +10,30 @@ const jwtOptions = {
   secretOrKey: process.env.JWT_SECRET || 'tu_secret_key_super_segura_aqui'
 };
 
-// Estrategia JWT para autenticación
+// Estrategia JWT por defecto
 passport.use(new JwtStrategy(jwtOptions, async (payload, done) => {
   try {
     const user = await User.findById(payload.userId).populate('cart');
-    
+
     if (!user) {
       return done(null, false);
     }
-    
+
+    return done(null, user);
+  } catch (error) {
+    return done(error, false);
+  }
+}));
+
+// Estrategia "current" para obtener el usuario actual
+passport.use('current', new JwtStrategy(jwtOptions, async (payload, done) => {
+  try {
+    const user = await User.findById(payload.userId).populate('cart');
+
+    if (!user) {
+      return done(null, false);
+    }
+
     return done(null, user);
   } catch (error) {
     return done(error, false);

@@ -1,20 +1,37 @@
 const passport = require('passport');
 
-// Middleware para autenticación JWT
-const authenticateJWT = passport.authenticate('jwt', { session: false });
+// Middleware para autenticación usando la estrategia "current"
+const authenticateCurrent = passport.authenticate('current', { session: false });
 
-// Middleware para verificar rol de administrador
-const isAdmin = (req, res, next) => {
-  if (req.user && req.user.role === 'admin') {
-    return next();
-  }
-  return res.status(403).json({
-    status: 'error',
-    message: 'Acceso denegado. Se requieren permisos de administrador.'
-  });
+// Middleware genérico para verificar rol
+const authorizeRole = (role) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'No autorizado'
+      });
+    }
+
+    if (req.user.role !== role) {
+      return res.status(403).json({
+        status: 'error',
+        message: 'Acceso denegado. Rol requerido: ' + role
+      });
+    }
+
+    next();
+  };
 };
+
+// Atajos para roles específicos
+const authorizeAdmin = authorizeRole('admin');
+const authorizeUser = authorizeRole('user');
 
 module.exports = {
-  authenticateJWT,
-  isAdmin
+  authenticateCurrent,
+  authorizeRole,
+  authorizeAdmin,
+  authorizeUser
 };
+

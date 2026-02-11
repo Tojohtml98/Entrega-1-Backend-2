@@ -4,6 +4,8 @@ const cors = require('cors');
 const connectDB = require('./config/database');
 const passport = require('./config/passport.config');
 const sessionsRoutes = require('./routes/sessions.routes');
+const productsRoutes = require('./routes/products.routes');
+const cartsRoutes = require('./routes/carts.routes');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -21,6 +23,8 @@ app.use(passport.initialize());
 
 // Rutas
 app.use('/api/sessions', sessionsRoutes);
+app.use('/api/products', productsRoutes);
+app.use('/api/carts', cartsRoutes);
 
 // Ruta de prueba
 app.get('/', (req, res) => {
@@ -29,7 +33,17 @@ app.get('/', (req, res) => {
     endpoints: {
       register: 'POST /api/sessions/register',
       login: 'POST /api/sessions/login',
-      current: 'GET /api/sessions/current (requiere token JWT)'
+      current: 'GET /api/sessions/current (requiere token JWT)',
+      products: {
+        list: 'GET /api/products',
+        create: 'POST /api/products (admin)',
+        update: 'PUT /api/products/:id (admin)',
+        delete: 'DELETE /api/products/:id (admin)'
+      },
+      carts: {
+        addProduct: 'POST /api/carts/:cid/products/:pid (user)',
+        purchase: 'POST /api/carts/:cid/purchase (user)'
+      }
     }
   });
 });
